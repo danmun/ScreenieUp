@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Form version="1.5" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
+  <NonVisualComponents>
+    <Container class="javax.swing.JDialog" name="progressDialog">
+      <Properties>
+        <Property name="defaultCloseOperation" type="int" value="2" postCode="progressDialog.setSize(450, 100);"/>
+        <Property name="title" type="java.lang.String" value="Progress" postCode="progressDialog.setLocationRelativeTo(null);"/>
+        <Property name="resizable" type="boolean" value="false"/>
+      </Properties>
+
+      <Layout>
+        <DimensionLayout dim="0">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" attributes="0">
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="0" attributes="0">
+                      <Component id="progressBar" max="32767" attributes="0"/>
+                      <Component id="progressLabel" alignment="1" max="32767" attributes="0"/>
+                  </Group>
+                  <EmptySpace max="-2" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+        <DimensionLayout dim="1">
+          <Group type="103" groupAlignment="0" attributes="0">
+              <Group type="102" alignment="1" attributes="0">
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="progressLabel" min="-2" pref="20" max="-2" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
+                  <Component id="progressBar" min="-2" pref="35" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="20" max="-2" attributes="0"/>
+              </Group>
+          </Group>
+        </DimensionLayout>
+      </Layout>
+      <SubComponents>
+        <Component class="javax.swing.JProgressBar" name="progressBar">
+          <Properties>
+            <Property name="maximumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[400, 5]"/>
+            </Property>
+            <Property name="minimumSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[400, 5]"/>
+            </Property>
+            <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+              <Dimension value="[400, 35]"/>
+            </Property>
+          </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="progressBar.setSize(400, 10);"/>
+          </AuxValues>
+        </Component>
+        <Component class="javax.swing.JLabel" name="progressLabel">
+          <Properties>
+            <Property name="horizontalAlignment" type="int" value="0"/>
+            <Property name="horizontalTextPosition" type="int" value="0"/>
+          </Properties>
+        </Component>
+      </SubComponents>
+    </Container>
+    <Component class="javax.swing.ButtonGroup" name="buttonGroup1">
+    </Component>
+  </NonVisualComponents>
+  <Properties>
+    <Property name="defaultCloseOperation" type="int" value="3"/>
+    <Property name="title" type="java.lang.String" value="ScreenieUp"/>
+    <Property name="resizable" type="boolean" value="false"/>
+  </Properties>
+  <SyntheticProperties>
+    <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
+    <SyntheticProperty name="generateCenter" type="boolean" value="true"/>
+  </SyntheticProperties>
+  <Events>
+    <EventHandler event="windowClosing" listener="java.awt.event.WindowListener" parameters="java.awt.event.WindowEvent" handler="formWindowClosing"/>
+    <EventHandler event="windowIconified" listener="java.awt.event.WindowListener" parameters="java.awt.event.WindowEvent" handler="formWindowIconified"/>
+    <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="formKeyReleased"/>
+  </Events>
+  <AuxValues>
+    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
+    <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="1"/>
+    <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
+  </AuxValues>
+
+  <Layout>
+    <DimensionLayout dim="0">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <Component id="toggleLabel" min="-2" pref="110" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="41" max="-2" attributes="0"/>
+              <Component id="browserBtn" min="-2" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="34" max="-2" attributes="0"/>
+              <Component id="linkarea" min="-2" pref="263" max="-2" attributes="0"/>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <Component id="imgurRadioBtn" min="-2" max="-2" attributes="0"/>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <Component id="uguuRadioBtn" min="-2" max="-2" attributes="0"/>
+              <EmptySpace min="-2" pref="26" max="-2" attributes="0"/>
+              <Component id="tipsBtn" min="-2" pref="110" max="-2" attributes="0"/>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <Component id="jButton1" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="32767" attributes="0"/>
+          </Group>
+          <Group type="102" attributes="0">
+              <Component id="instructionsLabel" min="-2" pref="1180" max="-2" attributes="0"/>
+              <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+    <DimensionLayout dim="1">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="1" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="toggleLabel" alignment="0" max="32767" attributes="0"/>
+                  <Component id="jButton1" alignment="0" min="-2" pref="23" max="-2" attributes="0"/>
+                  <Component id="tipsBtn" alignment="0" min="-2" pref="23" max="-2" attributes="0"/>
+                  <Component id="browserBtn" alignment="0" min="-2" pref="23" max="-2" attributes="0"/>
+                  <Group type="103" groupAlignment="3" attributes="0">
+                      <Component id="linkarea" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="imgurRadioBtn" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="uguuRadioBtn" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="instructionsLabel" min="-2" pref="662" max="-2" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+  </Layout>
+  <SubComponents>
+    <Component class="javax.swing.JLabel" name="instructionsLabel">
+      <Properties>
+        <Property name="horizontalAlignment" type="int" value="0"/>
+        <Property name="text" type="java.lang.String" value="&lt;html&gt;&lt;table&gt; &lt;tr&gt;&lt;td align=&quot;center&quot;&gt;PASTE OR DROP YOUR IMAGE HERE&lt;/td&gt;&lt;/tr&gt; &lt;tr&gt;&lt;td align=&quot;center&quot;&gt;(Ctrl + V)&lt;/td&gt;&lt;/tr&gt; &lt;/table&gt;&lt;html&gt;"/>
+        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[970, 580]"/>
+        </Property>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_AddingCodePost" type="java.lang.String" value="instructionsLabel.addMouseListener(new MouseAdapter(){&#xa;    public void mousePressed(MouseEvent evt){&#xa;        JComponent comp = (JComponent) evt.getSource();&#xa;        TransferHandler th = comp.getTransferHandler();&#xa;        th.exportAsDrag(comp,evt,TransferHandler.COPY);&#xa;    }&#xa;&#xa;});&#xa;&#xa;// The above can be removed I think , as &quot;enableDragndrop()&quot; sorts it all out."/>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="instructionsLabel.setTransferHandler(new TransferHandler(&quot;image&quot;));"/>
+        <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="//MyDragDropListener myDropListener = new MyDragDropListener();"/>
+      </AuxValues>
+    </Component>
+    <Component class="javax.swing.JTextField" name="linkarea">
+      <Properties>
+        <Property name="editable" type="boolean" value="false"/>
+        <Property name="columns" type="int" value="30"/>
+        <Property name="horizontalAlignment" type="int" value="0"/>
+        <Property name="enabled" type="boolean" value="false"/>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="linkarea.addKeyListener(new java.awt.event.KeyAdapter() {&#xa;            public void keyReleased(java.awt.event.KeyEvent evt) {&#xa;                formKeyReleased(evt);&#xa;            }&#xa;        });"/>
+      </AuxValues>
+    </Component>
+    <Component class="javax.swing.JRadioButton" name="imgurRadioBtn">
+      <Properties>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="buttonGroup1"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Imgur"/>
+      </Properties>
+      <Events>
+        <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="imgurRadioBtnFocusGained"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="imgurRadioBtnActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JRadioButton" name="uguuRadioBtn">
+      <Properties>
+        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
+          <ComponentRef name="buttonGroup1"/>
+        </Property>
+        <Property name="text" type="java.lang.String" value="Uguu"/>
+      </Properties>
+      <Events>
+        <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="uguuRadioBtnFocusGained"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="uguuRadioBtnActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="browserBtn">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Open in browser"/>
+        <Property name="enabled" type="boolean" value="false"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="browserBtnActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel1">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Grab image on app start:"/>
+        <Property name="toolTipText" type="java.lang.String" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="&quot;Grab image in clipboard and upload as soon as you start the app. No need to paste the image.&quot;" type="code"/>
+        </Property>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="toggleLabel">
+      <Properties>
+        <Property name="icon" type="javax.swing.Icon" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+          <Connection code="new javax.swing.ImageIcon(getClass().getResource(&quot;/screenieup/toggleOff.png&quot;))" type="code"/>
+        </Property>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="}else{&#xa;toggleLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource(&quot;/screenieup/toggleOn.png&quot;)));&#xa;}&#xa;&#xa;toggleLabel.addMouseListener(new MouseAdapter(){&#xa;            public void mouseClicked(MouseEvent e){&#xa;                ListWriter lw = new ListWriter(CONFIG_FILENAME);&#xa;                if(!toggleIsOn){&#xa;                    System.out.println(&quot;Instant uploading enabled for next app start.&quot;);&#xa;                    toggleIsOn = true;&#xa;                    toggleLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource(&quot;/screenieup/toggleOn.png&quot;)));&#xa;                    lw.replaceInfo(&quot;insta-upload&quot;, &quot;insta-upload &quot; + Integer.toString(1));&#xa;                    JOptionPane.showMessageDialog(null, &quot;You have turned on the instant upload feature.\nThe next time you start the app, the image in your clipboard will be uploaded straight away, without you having to paste it into the window.\n&quot; &#xa;                                                    +&quot;Please make sure your clipboard doesn&apos;t contain a sensitive image (e.g.: image that contains personal info) before starting the app.&quot;);&#xa;                }else if(toggleIsOn){&#xa;                    System.out.println(&quot;Instant uploading disabled.&quot;);&#xa;                    toggleIsOn = false;&#xa;                    toggleLabel.setIcon(new javax.swing.ImageIcon(getClass().getResource(&quot;/screenieup/toggleOff.png&quot;)));&#xa;                    lw.replaceInfo(&quot;insta-upload&quot;, &quot;insta-upload &quot; + Integer.toString(0));&#xa;                }&#xa;            }&#xa;        });"/>
+        <AuxValue name="JavaCodeGenerator_InitCodePre" type="java.lang.String" value="if(!toggleIsOn){"/>
+      </AuxValues>
+    </Component>
+    <Component class="javax.swing.JButton" name="tipsBtn">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Tips"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="tipsBtnActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="jButton1">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Check for update"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton1ActionPerformed"/>
+      </Events>
+    </Component>
+  </SubComponents>
+</Form>
