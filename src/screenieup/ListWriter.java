@@ -20,6 +20,10 @@ public class ListWriter{
     private final String path;
     private final boolean write = false;
     
+    /**
+     * Create a new ListWriter object.
+     * @param p the file name or path this object will work with
+     */
     public ListWriter(String p){
         path = p;
     }

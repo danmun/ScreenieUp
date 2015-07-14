@@ -39,14 +39,16 @@ import java.net.URL;
  */
 public class ImgurUpload {
     private final String IMGUR_POST_URI = "https://api.imgur.com/3/image.json";
-    private final String IMGUR_API_KEY = "YOUR API KEY GOES HERE";
+    private final String IMGUR_DELETE_URI = "http://imgur.com/delete/";
+    private final String IMGUR_API_KEY = "YOUR API KEY HERE";
     private final JProgressBar progressBar;
     private final JDialog progressDialog;
     private final String[] progressText;
     private final JLabel progressLabel;
     private final JTextField urlarea;
     private final JButton browserBtn;
-    String imgurl;
+    private String imgurl;
+    private String imgurl_del;
     
     public ImgurUpload(JTextField ua, String[] pT, JLabel lbl, JProgressBar jpb, JDialog dlg, JButton btn){
         urlarea = ua;
@@ -80,7 +82,7 @@ public class ImgurUpload {
                 publish(4);
                 String response = getResponse(connection);
                 publish(5);
-                getImageURL(response);
+                getImageLinks(response);
                 return null;
             }
             
@@ -92,7 +94,8 @@ public class ImgurUpload {
                 urlarea.setText(imgurl);
                 urlarea.setEnabled(true);
                 browserBtn.setEnabled(true);
-                JOptionPane.showMessageDialog(null, "Uploaded!\n" + "The image link has been copied to your clipboard!");
+                new ListWriter("image link log.txt").writeList("Image link: " + imgurl + " - Image delete link: " + IMGUR_DELETE_URI + imgurl_del, true); // true = append to file, false = overwrite
+                JOptionPane.showMessageDialog(null, "Uploaded!\n" + "The image link has been copied to your clipboard!\nImage link and deletion link has been logged to file."); 
                 progressDialog.dispose();
             }
             
@@ -101,9 +104,7 @@ public class ImgurUpload {
                 progressLabel.setText(progressText[chunks.get(chunks.size()-1)]); // The last value in this array is all we care about.
                 progressBar.setValue(chunks.get(chunks.size()-1) + 1);
             }
-            
         };
-        
         uploader.execute();
     }
     
@@ -209,26 +210,26 @@ public class ImgurUpload {
      * Parse the response to get the image link.
      * @param response the image link resulting from the upload
      */
-    private void getImageURL(String response){
+    private void getImageLinks(String response){
         System.out.println("Parsing response...");
-        String filetype = "";
-        int startindex = response.indexOf("http");
-        int endindex = 0;
-        if(response.contains(".png")){
-            endindex = response.indexOf(".png");
-            filetype = ".png";
-        }else if(response.contains(".jpg")){
-            endindex = response.indexOf(".jpg");
-            filetype = ".jpg";
-        }
-        char[] url = new char[endindex - startindex];
-        int index = 0;
-        for(int i = startindex; i < endindex; i++){
-            url[index] = response.charAt(i);
-            index++;
-        }
-        imgurl = String.valueOf(url) + filetype;
+        imgurl = parse("link", response);
+        imgurl_del = parse("deletehash", response);
         System.out.println("The URL is " + imgurl);
+    }
+    
+    /**
+     * Parse response to get the required property of the image.
+     * @param toParse the property to look for (eg. link / deletehash etc...)
+     * @param response the response to be parsed
+     * @return string containing the wanted property
+     */
+    private String parse(String toParse, String response){
+        int index = response.indexOf(toParse);
+        String name_value_pair = response.substring(index, response.indexOf(',',index));
+        index = name_value_pair.indexOf("\":\"");
+        int length = name_value_pair.length() - 1;
+        if(toParse.equals("link")) length -= 1;
+        return name_value_pair.substring(index + 3, length);
     }
     
     /**
