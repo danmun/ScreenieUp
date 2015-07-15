@@ -170,6 +170,8 @@ public class Updater extends SwingWorker<Void, Integer>{
             int ans = JOptionPane.showConfirmDialog(null, "Update available.\nWould you like to update the app?", "Updater", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
             if(ans != 0){updated = false; return;}
             save(baos);
+            File f = new File("toggleValue.txt");
+            if(f.exists()) f.delete();
         }else{
             JOptionPane.showMessageDialog(null,"No update was found.");
             try {
