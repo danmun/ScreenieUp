@@ -113,9 +113,9 @@ public class GUI extends javax.swing.JFrame implements Hosts{
         //get the systemTray of the system
         SystemTray systemTray = SystemTray.getSystemTray();
         PopupMenu trayPopupMenu = new PopupMenu();
-        //1t menuitem for popupmenu
-        MenuItem action = new MenuItem("Open");
-        action.addActionListener(new ActionListener() {
+        //1st menuitem for popupmenu
+        MenuItem opener = new MenuItem("Open");
+        opener.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setVisible(true);
@@ -127,17 +127,28 @@ public class GUI extends javax.swing.JFrame implements Hosts{
             }
         });     
         
-        trayPopupMenu.add(action);
-
+        trayPopupMenu.add(opener);
+        
         //2nd menuitem of popupmenu
-        MenuItem close = new MenuItem("Close");
-        close.addActionListener(new ActionListener() {
+        MenuItem uploader = new MenuItem("Upload");
+        uploader.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                handlePaste();
+            }
+        });     
+        
+        trayPopupMenu.add(uploader);
+
+        //3rd menuitem of popupmenu
+        MenuItem closer = new MenuItem("Close");
+        closer.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 System.exit(0);             
             }   
         });
-        trayPopupMenu.add(close);
+        trayPopupMenu.add(closer);
 
         //setting tray icon
         TrayIcon trayIcon = new TrayIcon(img, "SystemTray Demo", trayPopupMenu);
