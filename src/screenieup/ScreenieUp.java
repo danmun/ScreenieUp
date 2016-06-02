@@ -11,6 +11,7 @@ import javax.swing.JOptionPane;
 
 /**
  * FEATURES TO ADD:
+ * - Progress window during upload should terminate upload if closed
  * - Write each uploaded image link to a file
  * - Create a command line handler, make the app operable from command line. Requires Scanner which should work from a swing worker thread.
  * - Instant upload. With instant upload ON, when the JFrame gains focus, clipboard content is grabbed and uploaded to selected host.
