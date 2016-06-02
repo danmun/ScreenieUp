@@ -333,6 +333,11 @@ public class GUI extends javax.swing.JFrame implements Hosts{
 
         buttonGroup1.add(pomfRadioBtn);
         pomfRadioBtn.setText("Pomf");
+        pomfRadioBtn.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                pomfRadioBtnFocusGained(evt);
+            }
+        });
         pomfRadioBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 pomfRadioBtnActionPerformed(evt);
@@ -606,6 +611,10 @@ public class GUI extends javax.swing.JFrame implements Hosts{
     private void pomfRadioBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pomfRadioBtnActionPerformed
         setHost(POMF);
     }//GEN-LAST:event_pomfRadioBtnActionPerformed
+
+    private void pomfRadioBtnFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pomfRadioBtnFocusGained
+        super.requestFocusInWindow();
+    }//GEN-LAST:event_pomfRadioBtnFocusGained
     
     /**
      * Grab image from clipboard.

@@ -245,6 +245,7 @@
         <Property name="text" type="java.lang.String" value="Pomf"/>
       </Properties>
       <Events>
+        <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="pomfRadioBtnFocusGained"/>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pomfRadioBtnActionPerformed"/>
       </Events>
     </Component>
