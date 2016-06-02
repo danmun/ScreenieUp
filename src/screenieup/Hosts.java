@@ -10,5 +10,5 @@ package screenieup;
  * @author Daniel Munkacsi
  */
 public interface Hosts {
-    public static final int IMGUR = 0,UGUU = 1, POMF = 2;
+    public static final int IMGUR = 0,UGUU = 1;
 }
