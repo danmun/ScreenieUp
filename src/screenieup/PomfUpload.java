@@ -87,7 +87,12 @@ public class PomfUpload {
                 publish(2);
                 HttpURLConnection connection = connect();
                 publish(3);
-                sendFile(bytes,connection);
+                try{
+                    sendFile(bytes,connection);
+                }catch(SSLHandshakeException ex){
+                    JOptionPane.showMessageDialog(null, "You need to add Let's Encrypt's certificates to your Java CA Certificate store.");
+                    return null;
+                }
                 publish(4);
                 String response = getResponse(connection);
                 System.out.println("response received: " + response);
@@ -237,6 +242,7 @@ public class PomfUpload {
         }catch(IOException ex){
             if(ex instanceof SSLHandshakeException){
                 ex.printStackTrace();
+                JOptionPane.showMessageDialog(null, "You need to add Let's Encrypt's certificates to your Java CA Certificate store.");
             }else{
                 throw ex;
             }
@@ -339,32 +345,25 @@ public class PomfUpload {
                
         ByteArrayInputStream bais = new ByteArrayInputStream(b);
         DataOutputStream outstream;
-        try {
-            outstream = new DataOutputStream(conn.getOutputStream());
-            outstream.writeBytes(introline);
-            outstream.writeBytes("\r\n");
-            outstream.writeBytes(padder);
-            outstream.writeBytes("\r\n");
-            
-            int i;
-            while ((i = bais.read()) > -1){
-                outstream.write(i);
-                
-            }
-            bais.close();
-            
-            outstream.writeBytes("\r\n");
-            outstream.writeBytes("\r\n");
-            outstream.writeBytes(outroline);
-            outstream.flush();
-            outstream.close();
-        }catch(IOException ex){
-            if(ex instanceof SSLHandshakeException){
-                ex.printStackTrace();
-            }else{
-                throw ex;
-            }
+        outstream = new DataOutputStream(conn.getOutputStream());
+        outstream.writeBytes(introline);
+        outstream.writeBytes("\r\n");
+        outstream.writeBytes(padder);
+        outstream.writeBytes("\r\n");
+
+        int i;
+        while ((i = bais.read()) > -1){
+            outstream.write(i);
+
         }
+        bais.close();
+
+        outstream.writeBytes("\r\n");
+        outstream.writeBytes("\r\n");
+        outstream.writeBytes(outroline);
+        outstream.flush();
+        outstream.close();
+       
     }    
 
 }
