@@ -422,6 +422,7 @@ public class GUI extends javax.swing.JFrame implements Hosts{
         System.out.println("Paste detected.");
         BufferedImage img = null;
         if(HOST == IMGUR){
+            System.out.print("handling paste to imgur");
             img = (BufferedImage) getImageFromClipboard();
             if(img == null){
                 JOptionPane.showMessageDialog(null, "The pasted file was not an image. You can only upload images to Imgur.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -430,6 +431,7 @@ public class GUI extends javax.swing.JFrame implements Hosts{
             displayThumbnail(img);
             uploadToImgur(img);
         }else if(HOST == UGUU){
+            System.out.print("handling paste to uguu");
             File file = null;
             byte[] bytes = null;
             Object obj = getObjectFromClipboard();
