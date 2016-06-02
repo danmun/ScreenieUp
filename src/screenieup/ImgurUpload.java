@@ -31,6 +31,7 @@ import javax.swing.JLabel;
 import java.awt.Toolkit;
 import java.util.List;
 import java.net.URL;
+import org.json.JSONObject;
 
 
 /**
@@ -40,7 +41,7 @@ import java.net.URL;
 public class ImgurUpload {
     private final String IMGUR_POST_URI = "https://api.imgur.com/3/image.json";
     private final String IMGUR_DELETE_URI = "http://imgur.com/delete/";
-    private final String IMGUR_API_KEY = "YOUR API KEY HERE";
+    private final String IMGUR_API_KEY = "0eba51dd2dcc646";
     private final JProgressBar progressBar;
     private final JDialog progressDialog;
     private final String[] progressText;
@@ -224,12 +225,9 @@ public class ImgurUpload {
      * @return string containing the wanted property
      */
     private String parse(String toParse, String response){
-        int index = response.indexOf(toParse);
-        String name_value_pair = response.substring(index, response.indexOf(',',index));
-        index = name_value_pair.indexOf("\":\"");
-        int length = name_value_pair.length() - 1;
-        if(toParse.equals("link")) length -= 1;
-        return name_value_pair.substring(index + 3, length);
+        JSONObject jsn = new JSONObject(response);
+        JSONObject data = (JSONObject) jsn.get("data");
+        return (String) data.getString(toParse);
     }
     
     /**

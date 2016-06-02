@@ -41,10 +41,10 @@ import java.net.URL;
  * @author Daniel Munkacsi
  */
 public class UguuUpload {
-    private final String UGUU_URI = "http://uguu.se/api.php?d=upload";
+    private final String UGUU_URI = "https://uguu.se/api.php?d=upload-tool";
     private String filename;
     private String extension;
-    private final String tmpfiletype = "image/"; //this always works, regardless of file type / extension
+    private final String tmpfiletype = "file/"; //this always works, regardless of file type / extension
     private final String boundary = "---------------------------" + System.currentTimeMillis();
     
     private final JProgressBar progressBar;
@@ -271,7 +271,6 @@ public class UguuUpload {
         }
         String response = writer.toString();        
         writer.close();
-        reader.close();
         reader.close();
         uguurl = response;
     }
