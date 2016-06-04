@@ -152,7 +152,7 @@ public class GUI extends javax.swing.JFrame implements Hosts{
         trayPopupMenu.add(closer);
 
         //setting tray icon
-        TrayIcon trayIcon = new TrayIcon(img, "SystemTray Demo", trayPopupMenu);
+        TrayIcon trayIcon = new TrayIcon(img, "ScreenieUp", trayPopupMenu);
         //adjust to default size as per system recommendation 
         trayIcon.setImageAutoSize(true);
 
@@ -441,15 +441,16 @@ public class GUI extends javax.swing.JFrame implements Hosts{
             byte[] bytes = null;
             Object obj = getObjectFromClipboard();
             if(obj instanceof File){
+                System.err.println("file entered");
                 file = (File) obj;
                 img = imageFromFile(file);
                 if(img != null) displayThumbnail(img);
                 uploadToUguu(file);
             }else if(obj instanceof BufferedImage){
+                System.err.println("bufferedimage entered");
                 img = (BufferedImage) obj;
-                bytes = bytesFromImage(img);
                 displayThumbnail(img);
-                uploadToUguu(bytes);
+                uploadToUguu(img);
             }
         }else if(HOST == POMF){
             System.out.print("handling paste to pomf");
@@ -462,28 +463,16 @@ public class GUI extends javax.swing.JFrame implements Hosts{
                 img = imageFromFile(file);
                 if(img != null) displayThumbnail(img);
                 uploadToPomf(file);
+            }else if(obj instanceof BufferedImage){
+                img = (BufferedImage) obj;
+                //bytes = bytesFromImage(img);
+                displayThumbnail(img);
+                uploadToPomf(img);
             }           
         }        
     }
     
-    /**
-     * Create a byte array from the dropped or pasted image.
-     * @param img   the image to be converted to byte array
-     * @return the resulting byte array
-     */
-    private byte[] bytesFromImage(BufferedImage img){
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try {
-            ImageIO.write( img, "jpg", baos );
-            baos.flush();
-            byte[] imageInByte = baos.toByteArray();
-            baos.close();
-            return imageInByte;
-        } catch (IOException ex) {
-            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
-        }
-	return null;
-    }
+
     
     /**
      * Create a BufferedImage from the pasted or dropped file.
@@ -529,22 +518,32 @@ public class GUI extends javax.swing.JFrame implements Hosts{
         imgur.upload(bim);
     }
  
-    /**
-     * Upload file to hoster.
-     * @param f the file to upload
-     */
-    private void uploadToUguu(File f){
-        UguuUpload uguu = new UguuUpload(linkarea,progressText,progressLabel,progressBar,progressDialog,browserBtn);
-        uguu.upload(f);
-    }
-
-    /**
+     /**
      * Upload file to hoster.
      * @param b the bytes to upload
      */
-    private void uploadToUguu(byte[] b){
+    private void uploadToUguu(File f){
         UguuUpload uguu = new UguuUpload(linkarea,progressText,progressLabel,progressBar,progressDialog,browserBtn);
-        uguu.upload(b);
+        try {
+            uguu.upload(f);
+        } catch (IOException ex) {
+            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Item failed to upload. Please check your internet connection and that you are uploading the right file type for the given host.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+     /**
+     * Upload file to hoster.
+     * @param b the bytes to upload
+     */
+    private void uploadToUguu(BufferedImage img){
+        UguuUpload uguu = new UguuUpload(linkarea,progressText,progressLabel,progressBar,progressDialog,browserBtn);
+        try {
+            uguu.upload(img);
+        } catch (IOException ex) {
+            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Item failed to upload. Please check your internet connection and that you are uploading the right file type for the given host.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
     
      /**
@@ -553,7 +552,22 @@ public class GUI extends javax.swing.JFrame implements Hosts{
      */
     private void uploadToPomf(File f){
         PomfUpload pomf = new PomfUpload(linkarea,progressText,progressLabel,progressBar,progressDialog,browserBtn);
-        pomf.upload(f);
+        try {
+            pomf.upload(f);
+        } catch (IOException ex) {
+            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Item failed to upload. Please check your internet connection and that you are uploading the right file type for the given host.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    private void uploadToPomf(BufferedImage img){
+        PomfUpload pomf = new PomfUpload(linkarea,progressText,progressLabel,progressBar,progressDialog,browserBtn);
+        try {        
+            pomf.upload(img);
+        } catch (IOException ex) {        
+            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(null, "Item failed to upload. Please check your internet connection and that you are uploading the right file type for the given host.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
     
     private void uguuRadioBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_uguuRadioBtnActionPerformed
@@ -659,7 +673,7 @@ public class GUI extends javax.swing.JFrame implements Hosts{
         }else if(transferable != null && transferable.isDataFlavorSupported(DataFlavor.javaFileListFlavor)){
             try{
                 java.util.List list=(java.util.List) transferable.getTransferData(DataFlavor.javaFileListFlavor);
-                if(list.size() > 1){JOptionPane.showMessageDialog(null,"You pasted than one image. Currently you can only upload one image at a time.", "Error", JOptionPane.ERROR_MESSAGE); System.out.println("Multiple file upload not yet supported. Process halted."); return null;}
+                if(list.size() > 1){JOptionPane.showMessageDialog(null,"You pasted than one image. Currently you can only upload one item at a time.", "Error", JOptionPane.ERROR_MESSAGE); System.out.println("Multiple file upload not yet supported. Process halted."); return null;}
                 return list.get(0); // cast the first element in the list to a file, then read it into an image
             }catch (UnsupportedFlavorException | IOException e){
                 System.out.println("Unsupported flavour exception or IOException in getImageFromClipBoard()");

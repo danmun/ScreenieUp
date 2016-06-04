@@ -10,7 +10,6 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -42,27 +41,26 @@ import javax.swing.SwingWorker;
 import org.apache.commons.io.FilenameUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import screenieup.GUI;
 
 /**
- * Deprecated.
- * @author Dani
+ * @author Daniel Munkacsi
  */
 public class PomfUpload {
     private final String POMF_POST_URI = "https://pomf.cat/upload.php";
     private final String pomfix = "http://a.pomf.cat/";
-    private final String tmpfilename = "upload";
-    private final String tmpfilextension = ".png";
     private final String tmpfiletype = "image/png";
     private String filename;
     private String extension;
+    private final String boundary = "----";
+    String pomfurl;
+    
+    private final JButton browserBtn;
     private final JTextField urlarea;
     private final String[] progressText;
     private final JLabel progressLabel;
     private final JProgressBar progressBar;
-    private final JDialog progressDialog;
-    private final String boundary = "----";
-    String pomfurl;
-    private final JButton browserBtn;
+    private final JDialog progressDialog;    
     
     public PomfUpload(JTextField ua, String[] pT, JLabel lbl, JProgressBar jpb, JDialog dlg, JButton btn){
         urlarea = ua;
@@ -73,41 +71,54 @@ public class PomfUpload {
         progressDialog = dlg;
         browserBtn = btn;
     }
-    public void upload(File f){
+    
+    public void upload(File f) throws IOException{
         System.out.println("Preparing for upload...");
         String fullname = f.getName();
         extension = FilenameUtils.getExtension(fullname);
         filename = FilenameUtils.getBaseName(fullname);
+        startUpload(fileToBytes(f));
+    }
+    
+    public void upload(BufferedImage imgToUpload) throws IOException{
+        System.out.println("Preparing for upload...");
+        String fullname = "screenshot.png";
+        extension = FilenameUtils.getExtension(fullname);
+        filename = FilenameUtils.getBaseName(fullname);
+        startUpload(imageToBytes(imgToUpload));
+    }
+    
+    private void startUpload(byte[] b){
         SwingWorker uploader;
         uploader = new SwingWorker<Void, Integer>() {
             @Override
             protected Void doInBackground() throws IOException { // not handled anywhere, do fix
                 publish(0);
-                byte[] bytes = fileToBytes(f); 
                 publish(2);
                 HttpURLConnection connection = connect();
                 publish(3);
                 try{
-                    sendFile(bytes,connection);
+                    send(b,connection);
                 }catch(SSLHandshakeException ex){
                     JOptionPane.showMessageDialog(null, "You need to add Let's Encrypt's certificates to your Java CA Certificate store.");
                     return null;
-                }
+                } 
                 publish(4);
                 String response = getResponse(connection);
                 System.out.println("response received: " + response);
-                parseResponse(response);
+                parseResponse(response); 
                 return null;
             }
             @Override
             protected void done() {
                 publish(6);
-                copyToClipBoard();
+                copyToClipBoard(pomfurl);
                 publish(7);
                 urlarea.setText(pomfurl);
                 urlarea.setEnabled(true);
                 browserBtn.setEnabled(true);
-                JOptionPane.showMessageDialog(null, "Uploaded!\n" + "The image link has been copied to your clipboard!");
+                new ListWriter("pomf_links.txt").writeList("Image link: " + pomfurl, true); // true = append to file, false = overwrite
+                JOptionPane.showMessageDialog(null, "Uploaded!\n" + "The image link has been copied to your clipboard!\nImage link has been logged to file.");
                 progressDialog.dispose();
             }
             
@@ -117,72 +128,17 @@ public class PomfUpload {
                 progressBar.setValue(chunks.get(chunks.size()-1) + 1);
             }
         };
-        uploader.execute();        
+        uploader.execute();         
     }
     
-    public void upload(BufferedImage imgToUpload){
-        System.out.println("Preparing for upload...");
-        final BufferedImage img = imgToUpload; // was turned into 'final' when using JDK 7 to compile
-        SwingWorker uploader;
-        uploader = new SwingWorker<Void, Integer>() {
-            @Override
-            protected Void doInBackground() throws IOException {
-                publish(0);
-                ByteArrayInputStream bais = writeImage(img); 
-                publish(2);
-                HttpURLConnection connection = connect();
-                publish(3);
-                //sendImage(bais,connection);
-                publish(4);
-                String response = getResponse(connection);
-                publish(5);
-                getImageURL(response);
-                return null;
-            }
-            @Override
-            protected void done() {
-                publish(6);
-                copyToClipBoard();
-                publish(7);
-                urlarea.setText(pomfurl);
-                urlarea.setEnabled(true);
-                browserBtn.setEnabled(true);
-                JOptionPane.showMessageDialog(null, "Uploaded!\n" + "The image link has been copied to your clipboard!");
-                progressDialog.dispose();
-            }
-            
-            @Override
-            protected void process(List<Integer> chunks) {
-                progressLabel.setText(progressText[chunks.get(chunks.size()-1)]); // The last value in this array is all we care about.
-                progressBar.setValue(chunks.get(chunks.size()-1) + 1);
-            }
-            
-        };
-        
-        uploader.execute();
-    }
-    
-    public ByteArrayInputStream writeImage(BufferedImage image){
-        System.out.println("Writing image...");
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ByteArrayInputStream bais = null;
-        try {
-            ImageIO.write(image, "png", baos);
-            bais = new ByteArrayInputStream(baos.toByteArray());
-            baos.close();
-        } catch (IOException ex) {
-            Logger.getLogger(PomfUpload.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return bais;
-    }
-    
-    public HttpURLConnection connect() throws IOException{
+    private HttpURLConnection connect() throws IOException{
+        System.out.println("Connecting to pomf...");
         HttpURLConnection conn = null;
         URL url = null;
         try {
             url = new URL(POMF_POST_URI);
         } catch (MalformedURLException ex) {
-            Logger.getLogger(UguuUpload.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(PomfUpload.class.getName()).log(Level.SEVERE, null, ex);
             return null;
         }
         try {
@@ -198,21 +154,15 @@ public class PomfUpload {
         } catch (ProtocolException ex) {
             throw ex;
         }
-//      conn.setRequestProperty("Host","pomf.cat");
-        conn.setRequestProperty("Connection", "keep-alive");
-//        conn.setRequestProperty("Content-Length", "3423");
-//        conn.setRequestProperty("Origin", "https://pomf.cat");  
+        conn.setRequestProperty("Connection", "keep-alive");  
         conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36");
         conn.setRequestProperty("Content-Type","multipart/form-data; boundary=----" + boundary);
-        conn.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-//        conn.setRequestProperty("Referer", "https://pomf.cat/");  
+        conn.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");  
         conn.setRequestProperty("Accept-Encoding", "gzip, deflate");
-//        conn.setRequestProperty("Accept-Language", "en-US,en;q=0.5");
-//      conn.setRequestProperty("Cookie", "__cfduid=d46abf9b3f58e7a7344d431ad0230f29b1439947653");
         return conn;
     }
     
-    public void sendImage(byte[] b, HttpURLConnection conn) throws IOException{
+    private void send(byte[] b, HttpURLConnection conn) throws IOException{
         System.out.println("entered sendfile");
         String introline = "------"+boundary;
         String padder = String.format("Content-Disposition: form-data; name=\"files[]\"; filename=\"" + filename + "." + extension +"\"\r\nContent-type: " + tmpfiletype + "\r\n");
@@ -249,7 +199,7 @@ public class PomfUpload {
         }
     }
     
-    public String getResponse(HttpURLConnection conn) throws IOException{
+    private String getResponse(HttpURLConnection conn) throws IOException{
         System.out.println("Waiting for response...");
         String response = "No response received, or something has gone wrong.";
         String charset = "UTF-8";
@@ -267,37 +217,37 @@ public class PomfUpload {
         reader.close();
         return response;
     }
+
     
-    private void getImageURL(String response){
-        System.out.println("response from pomf: " + response);
-        System.out.println("Parsing response...");
-        String filetype = "";
-        int startindex = response.indexOf("url") + 6;
-        int endindex = 0;
-        if(response.contains(".png")){
-            endindex = response.indexOf(".png\",\"size\"");
-            filetype = ".png";
-        }else if(response.contains(".jpg")){
-            endindex = response.indexOf(".jpg\",\"size\"");
-            filetype = ".jpg";
-        }
-        char[] url = new char[endindex - startindex];
-        int index = 0;
-        for(int i = startindex; i < endindex; i++){
-            url[index] = response.charAt(i);
-            index++;
-        }
-        pomfurl = pomfix + String.valueOf(url) + filetype; // make .png a variable
-        System.out.println("The URL is " + pomfurl);
+    /**
+     * Parse the response to get the image link.
+     * @param response the image link resulting from the upload
+     */
+    private void parseResponse(String response){
+        JSONObject outerjson = new JSONObject(response);
+        JSONArray jsnarray = (JSONArray) outerjson.get("files");
+        JSONObject innerjson = (JSONObject) jsnarray.get(0);
+        pomfurl = pomfix + innerjson.get("url").toString();
     }
+    /**
+     * Create a byte array from the dropped or pasted image.
+     * @param img   the image to be converted to byte array
+     * @return the resulting byte array
+     */
+    private byte[] imageToBytes(BufferedImage img){
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            ImageIO.write( img, "jpg", baos );
+            baos.flush();
+            byte[] imageInByte = baos.toByteArray();
+            baos.close();
+            return imageInByte;
+        } catch (IOException ex) {
+            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+	return null;
+    }    
     
-    private void copyToClipBoard(){
-        Toolkit toolkit = Toolkit.getDefaultToolkit();
-        Clipboard clipboard = toolkit.getSystemClipboard();
-        StringSelection selection = new StringSelection(pomfurl);
-        clipboard.setContents(selection,null);
-        System.out.println("Image URL copied to clipboard.");
-    }
     /**
      * Convert the file to byte array.
      * This could be done in the GUI though, so the uploader can just have ONE upload method,
@@ -306,8 +256,8 @@ public class PomfUpload {
      * @param f the file to be written to a byte array
      * @return byte array containing file's data
      * @throws java.io.FileNotFoundException if file is not found while writing to bytes
-     */ 
-    public byte[] fileToBytes(File f) throws FileNotFoundException, IOException{
+     */     
+    private byte[] fileToBytes(File f) throws FileNotFoundException, IOException{
         byte[] filebytes;
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
             BufferedInputStream in = new BufferedInputStream(new FileInputStream(f));
@@ -320,50 +270,15 @@ public class PomfUpload {
         }
         return filebytes;
     }
-    
+ 
     /**
-     * Parse the response to get the image link.
-     * @param response the image link resulting from the upload
+     * Copy upload link to clipboard.
      */
-    private void parseResponse(String response){
-        JSONObject outerjson = new JSONObject(response);
-        JSONArray jsnarray = (JSONArray) outerjson.get("files");
-        JSONObject innerjson = (JSONObject) jsnarray.get(0);
-        pomfurl = pomfix + innerjson.get("url").toString();
-    }   
-    
-    /**
-     * Send the file to Uguu.
-     * @param b the contents of the file in a byte array
-     * @param conn the connection to use
-     */
-    public void sendFile(byte[] b, HttpURLConnection conn) throws IOException{
-        System.out.println("entered sendfile");
-        String introline = "------"+boundary;
-        String padder = String.format("Content-Disposition: form-data; name=\"files[]\"; filename=\"" + filename + "." + extension +"\"\r\nContent-type: " + tmpfiletype + "\r\n");
-        String outroline = "------"+boundary+"--";
-               
-        ByteArrayInputStream bais = new ByteArrayInputStream(b);
-        DataOutputStream outstream;
-        outstream = new DataOutputStream(conn.getOutputStream());
-        outstream.writeBytes(introline);
-        outstream.writeBytes("\r\n");
-        outstream.writeBytes(padder);
-        outstream.writeBytes("\r\n");
-
-        int i;
-        while ((i = bais.read()) > -1){
-            outstream.write(i);
-
-        }
-        bais.close();
-
-        outstream.writeBytes("\r\n");
-        outstream.writeBytes("\r\n");
-        outstream.writeBytes(outroline);
-        outstream.flush();
-        outstream.close();
-       
+    public void copyToClipBoard(String string){
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        Clipboard clipboard = toolkit.getSystemClipboard();
+        StringSelection selection = new StringSelection(string);
+        clipboard.setContents(selection,null);
+        System.out.println("Image URL copied to clipboard.");
     }    
-
 }

@@ -11,6 +11,8 @@ import javax.swing.JOptionPane;
 
 /**
  * FEATURES TO ADD:
+ * - Ability to paste text into pasting area and the program uploads it as .txt (where hosts allow), pretty much a pastebin
+ * - Pasting an image (not a file) from clipboard doesn't work for pomf
  * - Progress window during upload should terminate upload if closed
  * - Write each uploaded image link to a file
  * - Create a command line handler, make the app operable from command line. Requires Scanner which should work from a swing worker thread.

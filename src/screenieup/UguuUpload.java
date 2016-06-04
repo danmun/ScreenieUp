@@ -5,35 +5,41 @@
  */
 package screenieup;
 
-import java.awt.datatransfer.StringSelection;
-import org.apache.commons.io.FilenameUtils;
+import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
-import java.net.MalformedURLException;
-import java.io.ByteArrayOutputStream;
-import java.util.zip.GZIPInputStream;
-import java.io.FileNotFoundException;
-import java.io.ByteArrayInputStream;
+import java.awt.datatransfer.StringSelection;
+import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
+import org.apache.commons.io.FilenameUtils;
+import java.net.MalformedURLException;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
-import java.io.InputStreamReader;
-import javax.swing.JProgressBar;
 import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.File;
 import java.io.FileInputStream;
-import javax.swing.SwingWorker;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import java.io.StringWriter;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.net.URL;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.zip.GZIPInputStream;
+import javax.imageio.ImageIO;
+import javax.net.ssl.SSLHandshakeException;
 import javax.swing.JButton;
 import javax.swing.JDialog;
-import java.io.IOException;
 import javax.swing.JLabel;
-import java.awt.Toolkit;
-import java.util.List;
-import java.io.Reader;
-import java.io.File;
-import java.net.URL;
+import javax.swing.JOptionPane;
+import javax.swing.JProgressBar;
+import javax.swing.JTextField;
+import javax.swing.SwingWorker;
+import screenieup.GUI;
 
 
 /**
@@ -46,14 +52,14 @@ public class UguuUpload {
     private String extension;
     private final String tmpfiletype = "file/"; //this always works, regardless of file type / extension
     private final String boundary = "---------------------------" + System.currentTimeMillis();
+    String uguurl;
     
-    private final JProgressBar progressBar;
-    private final JDialog progressDialog;
+    private final JButton browserBtn;
+    private final JTextField urlarea;
     private final String[] progressText;
     private final JLabel progressLabel;
-    private final JTextField urlarea;
-    private final JButton browserBtn;
-    String uguurl;
+    private final JProgressBar progressBar;
+    private final JDialog progressDialog;    
     
     public UguuUpload(JTextField ua, String[] pT, JLabel lbl, JProgressBar jpb, JDialog dlg, JButton btn){
         urlarea = ua;
@@ -63,38 +69,49 @@ public class UguuUpload {
         progressBar.setMaximum(progressText.length);
         progressDialog = dlg;
         browserBtn = btn;
-        
     }
     
-    
-    public void upload(File f){
+    public void upload(File f) throws IOException{
         System.out.println("Preparing for upload...");
         String fullname = f.getName();
         extension = FilenameUtils.getExtension(fullname);
         filename = FilenameUtils.getBaseName(fullname);
+        startUpload(fileToBytes(f));
+    }
+    
+    public void upload(BufferedImage imgToUpload) throws IOException{
+        System.out.println("Preparing for upload...");
+        String fullname = "screenshot.png";
+        extension = FilenameUtils.getExtension(fullname);
+        filename = FilenameUtils.getBaseName(fullname);
+        startUpload(imageToBytes(imgToUpload));
+    }
+    
+    private void startUpload(byte[] b){
         SwingWorker uploader;
         uploader = new SwingWorker<Void, Integer>() {
             @Override
             protected Void doInBackground() throws IOException { // not handled anywhere, do fix
                 publish(0);
-                byte[] bytes = fileToBytes(f); 
                 publish(2);
                 HttpURLConnection connection = connect();
                 publish(3);
-                sendFile(bytes,connection);
+                send(b,connection);
                 publish(4);
-                getResponse(connection);
+                uguurl = getResponse(connection);
+                System.out.println("response received: " + uguurl); 
                 return null;
             }
             @Override
             protected void done() {
                 publish(6);
-                copyToClipBoard();
+                copyToClipBoard(uguurl);
                 publish(7);
                 urlarea.setText(uguurl);
                 urlarea.setEnabled(true);
                 browserBtn.setEnabled(true);
-                JOptionPane.showMessageDialog(null, "Uploaded!\n" + "The image link has been copied to your clipboard!");
+                new ListWriter("uguu_links.txt").writeList("Image link: " + uguurl, true); // true = append to file, false = overwrite
+                JOptionPane.showMessageDialog(null, "Uploaded!\n" + "The image link has been copied to your clipboard!\nImage link has been logged to file.");
                 progressDialog.dispose();
             }
             
@@ -104,76 +121,14 @@ public class UguuUpload {
                 progressBar.setValue(chunks.get(chunks.size()-1) + 1);
             }
         };
-        uploader.execute();
-    }
-    
-    public void upload(byte[] image){
-        System.out.println("Preparing for upload...");
-        String fullname = "random.jpg";
-        extension = FilenameUtils.getExtension(fullname);
-        filename = FilenameUtils.getBaseName(fullname);
-        SwingWorker uploader;
-        uploader = new SwingWorker<Void, Integer>() {
-            @Override
-            protected Void doInBackground() throws IOException {
-                publish(0);
-                publish(2);
-                HttpURLConnection connection = connect();
-                publish(3);
-                sendFile(image,connection);
-                publish(4);
-                getResponse(connection);
-                return null;
-            }
-            @Override
-            protected void done() {
-                publish(6);
-                copyToClipBoard();
-                publish(7);
-                urlarea.setText(uguurl);
-                urlarea.setEnabled(true);
-                browserBtn.setEnabled(true);
-                JOptionPane.showMessageDialog(null, "Uploaded!\n" + "The image link has been copied to your clipboard!");
-                progressDialog.dispose();
-            }
-            
-            @Override
-            protected void process(List<Integer> chunks) {
-                progressLabel.setText(progressText[chunks.get(chunks.size()-1)]); // The last value in this array is all we care about.
-                progressBar.setValue(chunks.get(chunks.size()-1) + 1);
-            }
-        };
-        uploader.execute();
-    }    
-    
-    /**
-     * Convert the file to byte array.
-     * This could be done in the GUI though, so the uploader can just have ONE upload method,
-     * which takes a byte array, instead of having 2 methods , one of which takes a file, the other a byte array.
-     * Improvements needed.
-     * @param f the file to be written to a byte array
-     * @return byte array containing file's data
-     * @throws java.io.FileNotFoundException if file is not found while writing to bytes
-     */ 
-    public byte[] fileToBytes(File f) throws FileNotFoundException, IOException{
-        byte[] filebytes;
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            BufferedInputStream in = new BufferedInputStream(new FileInputStream(f));
-            int read;
-            byte[] buff = new byte[2048];
-            while ((read = in.read(buff)) > 0){
-                out.write(buff, 0, read);
-            }   filebytes = out.toByteArray();
-            out.flush();
-        }
-        return filebytes;
+        uploader.execute();         
     }
     
     /**
      * Connect to Uguu.
      */
-    public HttpURLConnection connect(){
-        System.out.println("Connecting to pomf...");
+    private HttpURLConnection connect(){
+        System.out.println("Connecting to uguu...");
         HttpURLConnection conn = null;
         URL url = null;
         try {
@@ -213,7 +168,7 @@ public class UguuUpload {
      * @param b the contents of the file in a byte array
      * @param conn the connection to use
      */
-    public void sendFile(byte[] b, HttpURLConnection conn){
+    private void send(byte[] b, HttpURLConnection conn){
         String first = String.format("Content-Type: multipart/form-data; boundary=" + boundary +"\"\r\nContent-Length: 30721\r\n");
         String second = String.format("Content-Disposition: form-data; name=\"MAX_FILE_SIZE\"\r\n\r\n" + "100000000\r\n");
         String data = String.format("Content-Disposition: form-data; name=\"file\";filename=\"" + filename + "." + extension +"\"\r\nContent-type:" + tmpfiletype + "\r\n");
@@ -252,13 +207,13 @@ public class UguuUpload {
             System.out.println("IOException in sendImage()");
         }
     }
-    
     /**
      * Get a response from Uguu.
      * @param conn the connection to use to listen to response.
+     * @return 
      * @throws IOException during reading GZip response
      */
-    public void getResponse(HttpURLConnection conn) throws IOException{
+    private String getResponse(HttpURLConnection conn) throws IOException{
         System.out.println("Waiting for response...");
         String charset = "UTF-8"; // You should determine it based on response header.
         InputStream gzippedResponse = conn.getInputStream();
@@ -272,18 +227,59 @@ public class UguuUpload {
         String response = writer.toString();        
         writer.close();
         reader.close();
-        uguurl = response;
-    }
-
+        return response;
+    }        
+    /**
+     * Create a byte array from the dropped or pasted image.
+     * @param img   the image to be converted to byte array
+     * @return the resulting byte array
+     */
+    private byte[] imageToBytes(BufferedImage img){
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            ImageIO.write( img, "jpg", baos );
+            baos.flush();
+            byte[] imageInByte = baos.toByteArray();
+            baos.close();
+            return imageInByte;
+        } catch (IOException ex) {
+            Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
+	return null;
+    }    
+       
+    /**
+     * Convert the file to byte array.
+     * This could be done in the GUI though, so the uploader can just have ONE upload method,
+     * which takes a byte array, instead of having 2 methods , one of which takes a file, the other a byte array.
+     * Improvements needed.
+     * @param f the file to be written to a byte array
+     * @return byte array containing file's data
+     * @throws java.io.FileNotFoundException if file is not found while writing to bytes
+     */     
+    private byte[] fileToBytes(File f) throws FileNotFoundException, IOException{
+        byte[] filebytes;
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            BufferedInputStream in = new BufferedInputStream(new FileInputStream(f));
+            int read;
+            byte[] buff = new byte[2048];
+            while ((read = in.read(buff)) > 0){
+                out.write(buff, 0, read);
+            }   filebytes = out.toByteArray();
+            out.flush();
+        }
+        return filebytes;
+    }     
+    
     /**
      * Copy upload link to clipboard.
      */
-    private void copyToClipBoard(){
+    public void copyToClipBoard(String string){
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Clipboard clipboard = toolkit.getSystemClipboard();
-        StringSelection selection = new StringSelection(uguurl);
+        StringSelection selection = new StringSelection(string);
         clipboard.setContents(selection,null);
         System.out.println("Image URL copied to clipboard.");
-    }
+    }       
     
 }

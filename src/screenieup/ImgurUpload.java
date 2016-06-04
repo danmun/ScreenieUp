@@ -41,7 +41,7 @@ import org.json.JSONObject;
 public class ImgurUpload {
     private final String IMGUR_POST_URI = "https://api.imgur.com/3/image.json";
     private final String IMGUR_DELETE_URI = "http://imgur.com/delete/";
-    private final String IMGUR_API_KEY = "imgur api key here";
+    private final String IMGUR_API_KEY = "api key here";
     private final JProgressBar progressBar;
     private final JDialog progressDialog;
     private final String[] progressText;
@@ -95,7 +95,7 @@ public class ImgurUpload {
                 urlarea.setText(imgurl);
                 urlarea.setEnabled(true);
                 browserBtn.setEnabled(true);
-                new ListWriter("image link log.txt").writeList("Image link: " + imgurl + " - Image delete link: " + IMGUR_DELETE_URI + imgurl_del, true); // true = append to file, false = overwrite
+                new ListWriter("imgur_links.txt").writeList("Image link: " + imgurl + " - Image delete link: " + IMGUR_DELETE_URI + imgurl_del, true); // true = append to file, false = overwrite
                 JOptionPane.showMessageDialog(null, "Uploaded!\n" + "The image link has been copied to your clipboard!\nImage link and deletion link has been logged to file."); 
                 progressDialog.dispose();
             }
