@@ -11,4 +11,4 @@ https://www.dropbox.com/sh/kdn90i3b25cdl9i/AAB-DG2B6Uk08WisCj2HzkG1a?dl=0 <br />
 (don't forget to download the "lib" folder too)<br />
 <br />
 <br />
-<a href="http://imgur.com/YbEHbdp"><img src="http://i.imgur.com/YbEHbdp.png" title="source: imgur.com" /></a>
+<a href="http://i.imgur.com/O7Worii.png"><img src="http://i.imgur.com/O7Worii.png" title="source: imgur.com" /></a>
