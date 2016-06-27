@@ -116,7 +116,7 @@ public class MixtapeUpload {
                 urlarea.setText(mixtapeurl);
                 urlarea.setEnabled(true);
                 browserBtn.setEnabled(true);
-                new ListWriter("pomf_links.txt").writeList("Image link: " + mixtapeurl, true); // true = append to file, false = overwrite
+                new ListWriter("mixtape_links.txt").writeList("Image link: " + mixtapeurl, true); // true = append to file, false = overwrite
                 JOptionPane.showMessageDialog(null, "Uploaded!\n" + "The image link has been copied to your clipboard!\nImage link has been logged to file.");
                 progressDialog.dispose();
             }
