@@ -7,7 +7,7 @@ Note:<br />
   - Pomf's SSL certificate will have to be added to java cacerts store for the pomf uploader to work
 <br />
 Download latest release from:<br />
-https://www.dropbox.com/sh/kdn90i3b25cdl9i/AAB-DG2B6Uk08WisCj2HzkG1a?dl=0 <br />
+https://www.dropbox.com/s/u59ak9hdru7jdi2/ScreenieUp.jar?dl=0 <br />
 (don't forget to download the "lib" folder too)<br />
 <br />
 <br />
