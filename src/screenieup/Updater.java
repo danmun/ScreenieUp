@@ -36,7 +36,7 @@ import java.net.URI;
  */
 public class Updater extends SwingWorker<Void, Integer>{
     private final String[] updateText = {"Connecting to dropbox...","Getting response...","Hashing file in cloud...","Hashing file on your HDD...","Writing update to file...","Updated!"};
-    public String applink = "https://www.dropbox.com/s/6kmfss28pmf4h9q/ScreenieUp.jar?dl=1";// at the end: "?dl=1" MUST BE 1 otherwise it will result in a corrupt file... go figure                        
+    public String applink = "https://www.dropbox.com/s/u59ak9hdru7jdi2/ScreenieUp.jar?dl=1";// at the end: "?dl=1" MUST BE 1 otherwise it will result in a corrupt file... go figure                        
     public String host = "http://www.dropbox.com"; // not used // gives 301 Permanently moved
     public final String classfile = "Updater.class";
     public String filename = "ScreenieUp.jar";
