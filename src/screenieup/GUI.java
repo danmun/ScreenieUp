@@ -57,7 +57,8 @@ public class GUI extends javax.swing.JFrame implements Hosts{
     private final String IMGUR_STRING = "imgur";
     private final String UGUU_STRING = "uguu";
     private final String POMF_STRING = "pomf";
-    private final String[] HOST_ARRAY = {IMGUR_STRING,UGUU_STRING,POMF_STRING};
+    private final String MIXTAPE_STRING = "mixtape";
+    private final String[] HOST_ARRAY = {IMGUR_STRING,UGUU_STRING,POMF_STRING,MIXTAPE_STRING};
     private static final String CONFIG_FILENAME = "toggleValue.txt";
     private boolean toggleIsOn;
     private int HOST;
@@ -186,6 +187,7 @@ public class GUI extends javax.swing.JFrame implements Hosts{
         tipsBtn = new javax.swing.JButton();
         jButton1 = new javax.swing.JButton();
         pomfRadioBtn = new javax.swing.JRadioButton();
+        jRadioButton1 = new javax.swing.JRadioButton();
 
         progressDialog.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         progressDialog.setSize(450, 100);
@@ -344,6 +346,19 @@ public class GUI extends javax.swing.JFrame implements Hosts{
             }
         });
 
+        buttonGroup1.add(jRadioButton1);
+        jRadioButton1.setText("Mixtape");
+        jRadioButton1.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                jRadioButton1FocusGained(evt);
+            }
+        });
+        jRadioButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jRadioButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -359,13 +374,15 @@ public class GUI extends javax.swing.JFrame implements Hosts{
                 .addComponent(linkarea, javax.swing.GroupLayout.PREFERRED_SIZE, 263, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(imgurRadioBtn)
-                .addGap(18, 18, 18)
+                .addGap(4, 4, 4)
                 .addComponent(uguuRadioBtn)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(pomfRadioBtn)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jRadioButton1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(tipsBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addComponent(tipsBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 95, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jButton1)
                 .addContainerGap())
             .addGroup(layout.createSequentialGroup()
@@ -387,7 +404,8 @@ public class GUI extends javax.swing.JFrame implements Hosts{
                         .addComponent(uguuRadioBtn)
                         .addComponent(jLabel1)
                         .addComponent(browserBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(pomfRadioBtn)))
+                        .addComponent(pomfRadioBtn)
+                        .addComponent(jRadioButton1)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(instructionsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 662, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
@@ -452,7 +470,7 @@ public class GUI extends javax.swing.JFrame implements Hosts{
                 displayThumbnail(img);
                 uploadToUguu(img);
             }
-        }else if(HOST == POMF){
+        }else if(HOST == POMF || HOST == MIXTAPE){
             System.out.print("handling paste to pomf");
             File file = null;
             byte[] bytes = null;
@@ -551,9 +569,16 @@ public class GUI extends javax.swing.JFrame implements Hosts{
      * @param b the bytes to upload
      */
     private void uploadToPomf(File f){
-        PomfUpload pomf = new PomfUpload(linkarea,progressText,progressLabel,progressBar,progressDialog,browserBtn);
+        PomfUpload pomf = null;
+        MixtapeUpload mixtape = null;        
         try {
-            pomf.upload(f);
+            if(HOST == POMF){
+                pomf = new PomfUpload(linkarea,progressText,progressLabel,progressBar,progressDialog,browserBtn);
+                pomf.upload(f);
+            }else if(HOST == MIXTAPE){
+                mixtape = new MixtapeUpload(linkarea,progressText,progressLabel,progressBar,progressDialog,browserBtn);
+                mixtape.upload(f);
+            }
         } catch (IOException ex) {
             Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
             JOptionPane.showMessageDialog(null, "Item failed to upload. Please check your internet connection and that you are uploading the right file type for the given host.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -561,10 +586,17 @@ public class GUI extends javax.swing.JFrame implements Hosts{
     }
     
     private void uploadToPomf(BufferedImage img){
-        PomfUpload pomf = new PomfUpload(linkarea,progressText,progressLabel,progressBar,progressDialog,browserBtn);
-        try {        
-            pomf.upload(img);
-        } catch (IOException ex) {        
+        PomfUpload pomf = null;
+        MixtapeUpload mixtape = null;        
+        try {
+            if(HOST == POMF){
+                pomf = new PomfUpload(linkarea,progressText,progressLabel,progressBar,progressDialog,browserBtn);
+                pomf.upload(img);
+            }else if(HOST == MIXTAPE){
+                mixtape = new MixtapeUpload(linkarea,progressText,progressLabel,progressBar,progressDialog,browserBtn);
+                mixtape.upload(img);
+            }
+        } catch (IOException ex) {
             Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
             JOptionPane.showMessageDialog(null, "Item failed to upload. Please check your internet connection and that you are uploading the right file type for the given host.", "Error", JOptionPane.ERROR_MESSAGE);
         }
@@ -629,6 +661,14 @@ public class GUI extends javax.swing.JFrame implements Hosts{
     private void pomfRadioBtnFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_pomfRadioBtnFocusGained
         super.requestFocusInWindow();
     }//GEN-LAST:event_pomfRadioBtnFocusGained
+
+    private void jRadioButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jRadioButton1ActionPerformed
+        setHost(MIXTAPE);
+    }//GEN-LAST:event_jRadioButton1ActionPerformed
+
+    private void jRadioButton1FocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_jRadioButton1FocusGained
+        super.requestFocusInWindow();
+    }//GEN-LAST:event_jRadioButton1FocusGained
     
     /**
      * Grab image from clipboard.
@@ -779,6 +819,7 @@ public class GUI extends javax.swing.JFrame implements Hosts{
     private javax.swing.JLabel instructionsLabel;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JRadioButton jRadioButton1;
     private javax.swing.JTextField linkarea;
     private javax.swing.JRadioButton pomfRadioBtn;
     private javax.swing.JProgressBar progressBar;
