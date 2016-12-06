@@ -1,0 +1,175 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package screenieup.newuploaders;
+
+import org.apache.commons.codec.binary.Base64;
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.io.ByteArrayOutputStream;
+import java.awt.image.BufferedImage;
+import java.io.OutputStreamWriter;
+import java.io.InputStreamReader;
+import java.util.logging.Logger;
+import java.util.logging.Level;
+import java.io.BufferedReader;
+import java.net.URLConnection;
+import javax.imageio.ImageIO;
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.net.URL;
+import org.json.JSONObject;
+
+
+/**
+ *
+ * @author Daniel Munkacsi
+ */
+public class ImgurUpload {
+    private final String IMGUR_POST_URI = "https://api.imgur.com/3/image.json";
+    private final String IMGUR_DELETE_URI = "http://imgur.com/delete/";
+    private final String IMGUR_API_KEY = "api key here";
+    private String imgurl;
+    private String imgurl_del;
+    
+    public ImgurUpload() {
+    }
+    
+    /**
+     * Upload image.
+     * @param imgToUpload the image to upload
+     */
+    public void upload(BufferedImage imgToUpload){
+        System.out.println("Preparing for upload...");
+        BufferedImage img = imgToUpload; // 'img' was turned into 'final' when using JDK 7 to compile
+        ByteArrayOutputStream baos = writeImage(img);
+        String dataToSend = encodeImage(baos);
+        URLConnection connection = connect();
+        sendImage(connection,dataToSend);
+        String response = getResponse(connection);
+        getImageLinks(response);
+        //copyToClipBoard();
+    }
+    
+    /**
+     * Write image to bytes.
+     * @param imgToUpload the image to be written to bytes
+     * @return 
+     */
+    private ByteArrayOutputStream writeImage(BufferedImage imgToUpload){
+        // Creates Byte Array from picture
+        System.out.println("Writing image..."); 
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            ImageIO.write(imgToUpload, "png", baos);
+        } catch (IOException ex) {
+            Logger.getLogger(ImgurUpload.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return baos;
+    }
+    
+    /**
+     * Encode the byte array stream for upload.
+     * @param bs the stream to encode
+     * @return the encoded data, ready to be sent
+     */
+    private String encodeImage(ByteArrayOutputStream bs){
+        String data = "";
+        try {
+            System.out.println("Encoding...");
+            //encodes picture with Base64 and inserts api key
+            data = URLEncoder.encode("image", "UTF-8") + "=" + URLEncoder.encode(Base64.encodeBase64String(bs.toByteArray()), "UTF-8");
+            data += "&" + URLEncoder.encode("key", "UTF-8") + "=" + URLEncoder.encode(IMGUR_API_KEY, "UTF-8");
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(ImgurUpload.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return data;
+    }
+    
+    /**
+     * Connect to image host.
+     * @return the connection
+     */
+    private URLConnection connect(){
+        URLConnection conn = null;
+        try {
+            System.out.println("Connecting to imgur...");
+            // opens connection and sends data
+            URL url = new URL(IMGUR_POST_URI);
+            conn = url.openConnection();
+            conn.setDoOutput(true);
+            conn.setDoInput(true);
+            conn.setRequestProperty("Authorization", "Client-ID " + IMGUR_API_KEY);
+            conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            
+        } catch (MalformedURLException ex) {
+            Logger.getLogger(ImgurUpload.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(ImgurUpload.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return conn;
+    }
+    
+    /**
+     * Send the data.
+     * @param cn    the connection used to send the image
+     * @param data  the encoded image data to send
+     */
+    private void sendImage(URLConnection cn, String data){
+        System.out.println("Sending data...");
+        try{
+            OutputStreamWriter wr = new OutputStreamWriter(cn.getOutputStream());
+            wr.write(data);
+            wr.flush();
+            wr.close();
+        }catch(IOException ex){
+        
+        }
+    }
+    
+    /**
+     * Get a response from the image hoster.
+     * @param cn the connection to receive a response from
+     * @return the response
+     */
+    private String getResponse(URLConnection cn){
+        System.out.println("Waiting for response...");
+        String response = "";
+        try{
+            BufferedReader in = new BufferedReader(new InputStreamReader(cn.getInputStream(),"UTF-8"));
+            String line;
+            while ((line = in.readLine()) != null) {
+                response = line.replaceAll("\\\\", "");
+            }
+            in.close();
+        }catch(IOException ex){
+            
+        }
+        return response;
+    }
+    
+    /**
+     * Parse the response to get the image link.
+     * @param response the image link resulting from the upload
+     */
+    private void getImageLinks(String response){
+        System.out.println("Parsing response...");
+        imgurl = parse("link", response);
+        imgurl_del = parse("deletehash", response);
+        System.out.println("The URL is " + imgurl);
+    }
+    
+    /**
+     * Parse response to get the required property of the image.
+     * @param toParse the property to look for (eg. link / deletehash etc...)
+     * @param response the response to be parsed
+     * @return string containing the wanted property
+     */
+    private String parse(String toParse, String response){
+        JSONObject jsn = new JSONObject(response);
+        JSONObject data = (JSONObject) jsn.get("data");
+        return (String) data.getString(toParse);
+    }
+}
